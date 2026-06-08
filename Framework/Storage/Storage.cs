@@ -99,7 +99,7 @@ public sealed class Storage : StorageContainer
 			if (data.SearchPattern != null)
 			{
 				// path relative to the root path
-				var relativeToSearch = Calc.NormalizePath(Path.GetRelativePath(data.SearchPath, path));
+				var relativeToSearch = Calc.NormalizePath(data.SearchPath.Length > 0 ? Path.GetRelativePath(data.SearchPath, path) : path);
 				if (!data.SearchPattern.IsMatch(relativeToSearch))
 					return SDL_EnumerationResult.SDL_ENUM_CONTINUE;
 			}
