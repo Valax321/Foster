@@ -254,7 +254,7 @@ public abstract class App : IDisposable
 		Window = new Window(this, config.WindowTitle, config.Width, config.Height, config.Fullscreen, config.Resizable);
 
 		// try to load default SDL gamepad mappings
-		Input.AddDefaultSDLGamepadMappings(AppContext.BaseDirectory);
+		Input.AddDefaultSDLGamepadMappings(SDL_GetBasePath());
 	}
 
 	~App() => Dispose(false);
