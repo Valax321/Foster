@@ -204,6 +204,18 @@ public static class Calc
 		=> Min(Min(Min(a, b), c), d);
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static T Min<T>(params ReadOnlySpan<T> span) where T : IComparable<T>
+	{
+		if (span.Length <= 0)
+			throw new Exception("Span cannot be empty");
+
+		var value = span[0];
+		for (int i = 1; i < span.Length; i ++)
+			value = Min(value, span[i]);
+		return value;
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static T Max<T>(T a, T b) where T : IComparable<T>
 		=> a.CompareTo(b) > 0 ? a : b;
 
@@ -215,12 +227,36 @@ public static class Calc
 	public static T Max<T>(T a, T b, T c, T d) where T : IComparable<T>
 		=> Max(Max(Max(a, b), c), d);
 
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static T Max<T>(params ReadOnlySpan<T> span) where T : IComparable<T>
+	{
+		if (span.Length <= 0)
+			throw new Exception("Span cannot be empty");
+
+		var value = span[0];
+		for (int i = 1; i < span.Length; i ++)
+			value = Max(value, span[i]);
+		return value;
+	}
+
 	/// <summary>
 	/// Returns a vector whose X and Y are the minimums of the three Xs and Ys of the given vectors
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static Vector2 Min(Vector2 a, Vector2 b, Vector2 c)
 		=> Vector2.Min(Vector2.Min(a, b), c);
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static Vector2 Min(in ReadOnlySpan<Vector2> span)
+	{
+		if (span.Length <= 0)
+			throw new Exception("Span cannot be empty");
+
+		var value = span[0];
+		for (int i = 1; i < span.Length; i ++)
+			value = Vector2.Min(value, span[i]);
+		return value;
+	}
 
 	/// <summary>
 	/// Returns a vector whose X and Y are the maximums of the three Xs and Ys of the given vectors
@@ -229,10 +265,22 @@ public static class Calc
 	public static Vector2 Max(Vector2 a, Vector2 b, Vector2 c)
 		=> Vector2.Max(Vector2.Max(a, b), c);
 
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static Vector2 Max(in ReadOnlySpan<Vector2> span)
+	{
+		if (span.Length <= 0)
+			throw new Exception("Span cannot be empty");
+
+		var value = span[0];
+		for (int i = 1; i < span.Length; i ++)
+			value = Vector2.Max(value, span[i]);
+		return value;
+	}
+
 	/// <summary>
-	/// Get the index of the element in the list that is smallest. If multiple entries are equal, the one that appears first is chosen. Returns -1 if the list is empty.
+	/// Get the index of the element in <paramref name="list"/> that is smallest. If multiple entries are equal, the one that appears first is chosen. Returns -1 if <paramref name="list"/> is empty.
 	/// </summary>
-	public static int Smallest<T>(params ReadOnlySpan<T> list) where T : IComparable<T>
+	public static int IndexOfSmallest<T>(params ReadOnlySpan<T> list) where T : IComparable<T>
 	{
 		if (list.Length == 0)
 			return -1;
@@ -251,9 +299,9 @@ public static class Calc
 	}
 
 	/// <summary>
-	/// Get the index of the element in the list that is largest. If multiple entries are equal, the one that appears first is chosen. Returns -1 if the list is empty.
+	/// Get the index of the element in <paramref name="list"/> that is largest. If multiple entries are equal, the one that appears first is chosen. Returns -1 if <paramref name="list"/> is empty.
 	/// </summary>
-	public static int Largest<T>(params ReadOnlySpan<T> list) where T : IComparable<T>
+	public static int IndexOfLargest<T>(params ReadOnlySpan<T> list) where T : IComparable<T>
 	{
 		if (list.Length == 0)
 			return -1;
@@ -272,41 +320,23 @@ public static class Calc
 	}
 
 	/// <summary>
-	/// Move toward a target value without passing it
+	/// Move toward a <paramref name="target"/> value by no more than <paramref name="maxDelta"/>, without passing the <paramref name="target"/>
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static float Approach(float from, float target, float maxDelta)
 		=> from > target ? Math.Max(from - maxDelta, target) : Math.Min(from + maxDelta, target);
 
 	/// <summary>
-	/// Move toward a target value without passing it
+	/// Move toward a <paramref name="target"/> value by no more than <paramref name="maxDelta"/>, without passing the <paramref name="target"/>
 	/// </summary>
+	/// <returns>True if we reached the <paramref name="target"/> value</returns>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static float Approach(ref float from, float target, float maxDelta)
-		=> from > target ? from = Math.Max(from - maxDelta, target) : from = Math.Min(from + maxDelta, target);
+	public static bool Approach(ref float from, float target, float maxDelta)
+		=> (from > target ? from = Math.Max(from - maxDelta, target) : from = Math.Min(from + maxDelta, target)) == target;
 
 	/// <summary>
-	/// Move toward a target value without passing it, and only if we have the opposite sign or lower magnitude
+	/// Move a <see cref="Vector2"/> toward a <paramref name="target"/> position, moving no further than <paramref name="maxDelta"/>
 	/// </summary>
-	public static float ApproachIfLower(float from, float target, float maxDelta)
-	{
-		if (Math.Sign(from) != Math.Sign(target) || Math.Abs(from) < Math.Abs(target))
-			return Approach(from, target, maxDelta);
-		else
-			return from;
-	}
-
-	/// <summary>
-	/// Move toward a target value without passing it, and only if we have the opposite sign or lower magnitude
-	/// </summary>
-	public static float ApproachIfLower(ref float from, float target, float maxDelta)
-	{
-		if (Math.Sign(from) != Math.Sign(target) || Math.Abs(from) < Math.Abs(target))
-			return Approach(ref from, target, maxDelta);
-		else
-			return from;
-	}
-
 	public static Vector2 Approach(Vector2 from, Vector2 target, float maxDelta)
 	{
 		if (from == target)
@@ -322,6 +352,30 @@ public static class Calc
 	}
 
 	/// <summary>
+	/// Move a <see cref="Vector2"/> toward a <paramref name="target"/> position, moving no further than <paramref name="maxDelta"/>
+	/// </summary>
+	/// <returns>True if we reached the <paramref name="target"/> position</returns>
+	public static bool Approach(ref Vector2 from, Vector2 target, float maxDelta)
+	{
+		if (from == target)
+			return true;
+		else
+		{
+			var diff = target - from;
+			if (diff.LengthSquared() <= maxDelta * maxDelta)
+			{
+				from = target;
+				return true;
+			}
+			else
+			{
+				from += diff.Normalized() * maxDelta;
+				return false;
+			}
+		}
+	}
+
+	/// <summary>
 	/// Move toward a target position by a up to a maximum amount, but only allow movement along an arbitrary axis
 	/// </summary>
 	/// <param name="from">Starting point</param>
@@ -331,35 +385,6 @@ public static class Calc
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static Vector2 ApproachAlongAxis(Vector2 from, Vector2 target, Vector2 axisNormal, float maxDelta)
 		=> Approach(from, from + axisNormal * Vector2.Dot(target - from, axisNormal), maxDelta);
-
-	public static Vector3 Approach(Vector3 from, Vector3 target, float amount)
-	{
-		if (from == target)
-			return target;
-		else
-		{
-			var diff = target - from;
-			if (diff.LengthSquared() <= amount * amount)
-				return target;
-			else
-				return from + diff.Normalized() * amount;
-		}
-	}
-
-
-	public static Vector2 Approach(ref Vector2 from, Vector2 target, float amount)
-	{
-		if (from == target)
-			return target;
-		else
-		{
-			var diff = target - from;
-			if (diff.LengthSquared() <= amount * amount)
-				return from = target;
-			else
-				return from += diff.Normalized() * amount;
-		}
-	}
 
 	public static Vector2 RotateToward(Vector2 dir, Vector2 target, float maxAngleDelta, float maxMagnitudeDelta)
 	{
@@ -373,6 +398,47 @@ public static class Calc
 			len = Approach(len, target.Length(), maxMagnitudeDelta);
 
 		return AngleToVector(angle, len);
+	}
+
+	/// <summary>
+	/// Move a <see cref="Vector3"/> toward a <paramref name="target"/> position, moving no further than <paramref name="maxDelta"/>
+	/// </summary>
+	public static Vector3 Approach(Vector3 from, Vector3 target, float maxDelta)
+	{
+		if (from == target)
+			return target;
+		else
+		{
+			var diff = target - from;
+			if (diff.LengthSquared() <= maxDelta * maxDelta)
+				return target;
+			else
+				return from + diff.Normalized() * maxDelta;
+		}
+	}
+
+	/// <summary>
+	/// Move a <see cref="Vector3"/> toward a <paramref name="target"/> position, moving no further than <paramref name="maxDelta"/>
+	/// </summary>
+	/// <returns>True if we reached the <paramref name="target"/> position</returns>
+	public static bool Approach(ref Vector3 from, Vector3 target, float maxDelta)
+	{
+		if (from == target)
+			return true;
+		else
+		{
+			var diff = target - from;
+			if (diff.LengthSquared() <= maxDelta * maxDelta)
+			{
+				from = target;
+				return true;
+			}
+			else
+			{
+				from += diff.Normalized() * maxDelta;
+				return false;
+			}
+		}
 	}
 
 	/// <summary>
@@ -512,8 +578,18 @@ public static class Calc
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static float AngleApproach(ref float val, float target, float maxMove)
-		=> val = AngleApproach(val, target, maxMove);
+	public static bool AngleApproach(ref float val, float target, float maxMove)
+	{
+		var diff = AngleDiff(val, target);
+		if (Math.Abs(diff) < maxMove)
+		{
+			val = target;
+			return true;
+		}
+
+		val += Clamp(diff, -maxMove, maxMove);
+		return false;
+	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static float AngleLerp(float startAngle, float endAngle, float percent)
@@ -549,6 +625,16 @@ public static class Calc
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static bool OnInterval(double time, double delta, double interval, double offset = 0)
 		=> Math.Floor((time - offset - delta) / interval) < Math.Floor((time - offset) / interval);
+
+	/// <summary>
+	/// Returns how many times the interval has been passed over the last frame. Ex: with an interval of 0.01 and a steady delta time of 0.016, this will alternate returning 1 and 2 every frame
+	/// </summary>
+	/// <param name="time">Current elapsed time in seconds</param>
+	/// <param name="delta">Time since last frame in seconds</param>
+	/// <param name="interval">Interval to count the times we've crossed, in seconds</param>
+	/// <param name="offset">Offset to the interval in seconds (so we can, in effect, start partway through an interval)</param>
+	public static int IntervalCount(double time, double delta, double interval, double offset = 0)
+		=> Floor((time - offset) / interval) - Floor((time - offset - delta) / interval);
 
 	/// <summary>
 	/// Returns true when the elapsed <paramref name="time"/> is between the given <paramref name="interval"/>. Ex: with an <paramref name="interval"/> of 0.1, this will be false for 0.1 seconds, then true for 0.1 seconds, and then repeat.

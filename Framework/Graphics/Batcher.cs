@@ -4,10 +4,8 @@ using System.Numerics;
 namespace Foster.Framework;
 
 /// <summary>
-/// A 2D Sprite Batcher.<br/>
+/// A 2D Sprite Batcher, which builds vertex and index buffers internally in order to simplify 2D drawing.<br/>
 /// <br/>
-/// Constructs a <see cref="Mesh"/> which can be drawn by calling Render.<br/>
-/// <br />
 /// Note if you intend to re-use the Batcher over multiple frames, be sure to
 /// call <see cref="Clear"/> after you have rendered it so it's ready for the
 /// next frame.
@@ -363,7 +361,6 @@ public class Batcher : IDisposable
 
 		currentBatch.Layer = layer;
 		currentBatchInsert = insert;
-		TryToMergeBatch();
 	}
 
 	private void SetMaterial(Material? material)
@@ -450,7 +447,8 @@ public class Batcher : IDisposable
 			var prev = batches[index];
 			var curr = currentBatch;
 
-			if (prev.Texture == curr.Texture &&
+			if (prev.Layer == curr.Layer &&
+				prev.Texture == curr.Texture &&
 				prev.Blend == curr.Blend &&
 				prev.Scissor == curr.Scissor &&
 				prev.Sampler == curr.Sampler &&
