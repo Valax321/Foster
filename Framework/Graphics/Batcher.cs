@@ -1079,6 +1079,14 @@ public class Batcher : IDisposable
 	public void RectLine(in Vector2 position, in Vector2 size, float lineWeight, Color color)
 		=> RectLine(new Rect(position, size), lineWeight, color);
 
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public void RectLine(in Vector2 position, float width, float height, float lineWeight, Color color)
+		=> RectLine(new Rect(position, width, height), lineWeight, color);
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public void RectLine(float x, float y, float width, float height, float lineWeight, Color color)
+		=> RectLine(new Rect(x, y, width, height), lineWeight, color);
+
 	public void RectDashed(Rect rect, float lineWeight, in Color color, float dashLength, float dashOffset)
 	{
 		rect = rect.Inflate(-lineWeight / 2);
@@ -1765,7 +1773,7 @@ public class Batcher : IDisposable
 		{
 			vertices.CopyTo(dstVertices);
 		}
-		
+
 		for (int i = 0; i < indices.Length; i ++)
 			dstIndices[i] = indices[i] + vertexOffset;
 	}
