@@ -76,7 +76,7 @@ public partial class MsdfFont : IProvideKerning
 	public readonly float DistanceRange;
 	public readonly Character[] Characters;
 
-	public MsdfFont(Image atlasImage, byte[] atlasData)
+	public MsdfFont(Image atlasImage, ReadOnlySpan<byte> atlasData)
 	{
 		Image = atlasImage;
 		Characters = [];
